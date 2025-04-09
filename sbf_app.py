@@ -2,7 +2,12 @@ import pandas as pd
 import csv
 import math
 import random 
+import re
+
 class Game:
+    regex_img = "<img src=\"(.+?)\""
+    regex_answer ="^(.*?)<"
+
 
     def __init__(self):
         self.data = pd.read_csv("data/sbf_fragen.csv", quotechar="|",  names=
@@ -31,10 +36,19 @@ class Game:
         random.shuffle(order)
         correct  = 0
         for i in range(len(order)):
-            # because a is always right
-            if order[i] == 2:
-                correct = i
-            print(str(i)+"): "+ self.data[q_number][order[i]])
+            if re.search(self.regex_img, self.data[q_number][order[i]]):
+                q = re.findall(self.regex_answer, self.data[q_number][order[i]],
+                        re.DOTALL)
+                m = re.findall(self.regex_img, self.data[q_number][order[i]],
+                        re.DOTALL)
+                print(str(i)+"): "+q[0], end="")
+                for i in m:
+                    print(i)
+                print()
+            else:
+
+
+                print(str(i)+"): "+self.data[q_number][order[i]])
         
         versuch = 2
         anzahl_versuche = 0
@@ -44,8 +58,8 @@ class Game:
             except:
                 print("Falsche eingabe getätigt!")
                 continue
-                
-            if order[answer] == 2:
+            if order[answer] == 2: # weil das richtige ursprünglich an der 2.
+                                   # stelle war
                 print("Richtig")
                 break
             else:
@@ -60,5 +74,5 @@ class Game:
 
 if __name__ == "__main__":
     g = Game()
-    g.ask_random_question()
+    g.ask_question(278)
 
