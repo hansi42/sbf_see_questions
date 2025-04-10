@@ -6,8 +6,38 @@
   <p>Before the script...</p>
 
   <script>
-    alert( 'Jonas, mach kaffee' );
-  </script>
+const fs = require('fs');
+const Papa = require('papaparse');
+
+// Read the CSV file asynchronously
+fs.readFile("data/sbf_fragen.csv", "utf8", (err, fileData) => {
+  if (err) {
+    console.error("Error reading the file:", err);
+    return;
+  }
+
+  // Parse the CSV data using PapaParse
+  const results = Papa.parse(fileData, {
+    delimiter: ',',         // Adjust if your CSV uses a different delimiter
+    quoteChar: '|',         // Set the quote character to |
+    skipEmptyLines: true,   // Skip empty lines if needed
+    // We do not set header:true because the Python code uses provided names instead.
+  });
+
+  // Process each row to ensure it has exactly 9 columns.
+  // Similar to pandas filling missing columns with NaN, here we fill with null.
+  const rows = results.data.map(row => {
+      // Create a new array with 9 columns.
+      let paddedRow = [];
+      for (let i = 0; i < 9; i++) {
+         paddedRow[i] = (i < row.length) ? row[i] : null;
+      }
+      return paddedRow;
+  });
+
+  // Now 'rows' is analogous to the numpy array returned by to_numpy()
+  console.log(rows);
+});  </script>
 
   <p>...After the script.</p>
 
